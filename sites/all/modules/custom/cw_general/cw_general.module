@@ -1,0 +1,48 @@
+<?php
+/**
+ * Implements hook_node_validate().
+ */
+function cw_general_node_validate($node, $form, &$form_state)
+{
+	switch($node->type)
+	{
+		case 'job':
+			//检查薪水
+			$job_wrapper = entity_metadata_wrapper('node', $node);
+			$high = $job_wrapper->field_salary_high->value();
+			$low = $job_wrapper->field_salary_low->value();
+			if ($high < $low)
+			{
+				$err_msg = t('最高薪水必须大于等于最低薪水');
+				form_set_error('field_salary_low', '');
+				form_set_error('field_salary_high', $err_msg);
+			}
+			//检查佣金日不应该大于试用期
+			$commission_day = $job_wrapper->field_commission_day->value();
+			$probation = $job_wrapper->field_probation->value();
+			if ($commission_day > $probation)
+			{
+				$err_msg = t('佣金期限不可超过试用期');
+				form_set_error('field_commission_day', $err_msg);
+			}
+			//检查年龄
+			$high = $job_wrapper->field_age_to->value();
+			$low = $job_wrapper->field_age_from->value();
+			if ($high < $low)
+			{
+				$err_msg = t('年龄上限不得小于年龄下限');
+				form_set_error('field_age_to', '');
+				form_set_error('field_age_from', $err_msg);
+			}
+			//检查身高
+			$high = $job_wrapper->field_height_to->value();
+			$low = $job_wrapper->field_height_from->value();
+			if ($high < $low)
+			{
+				$err_msg = t('身高上限不得小于身高下限');
+				form_set_error('field_height_to', '');
+				form_set_error('field_height_from', $err_msg);
+			}
+			break;
+	}
+}
